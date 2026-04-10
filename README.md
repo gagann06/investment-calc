@@ -45,7 +45,7 @@ investment-calculator/
 - Python 3.8+
 - pip
 
-### Installation
+### Installation (for Windows)
 
 1. **Clone the repository**
 
