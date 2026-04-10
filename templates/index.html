@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XYZ Investment Calculator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #0A1628;
+            color: #F0F0F0;
+            min-height: 100vh;
+        }
+
+        nav {
+            background-color: #0D1F3C;
+            border-bottom: 2px solid #C9A84C;
+            padding: 18px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav .logo {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #C9A84C;
+            letter-spacing: 2px;
+        }
+
+        nav a {
+            color: #F0F0F0;
+            text-decoration: none;
+            margin-left: 30px;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+        }
+
+        nav a:hover { color: #C9A84C; }
+
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 20px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            color: #C9A84C;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #B0B8C8;
+            max-width: 600px;
+            line-height: 1.8;
+            margin-bottom: 50px;
+        }
+
+        .btn {
+            background-color: #C9A84C;
+            color: #0A1628;
+            padding: 16px 40px;
+            font-size: 1rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover { background-color: #E0C068; }
+
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 60px 40px;
+            flex-wrap: wrap;
+        }
+
+        .feature-card {
+            background-color: #0D1F3C;
+            border: 1px solid #1E3A5F;
+            border-top: 3px solid #C9A84C;
+            padding: 30px;
+            width: 250px;
+            text-align: center;
+        }
+
+        .feature-card h3 {
+            color: #C9A84C;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            letter-spacing: 1px;
+        }
+
+        .feature-card p {
+            color: #B0B8C8;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid #1E3A5F;
+            color: #5A6A80;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">XYZ CAPITAL</div>
+        <div>
+            <a href="/">Home</a>
+            <a href="/calculator">Calculator</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>Investment Return Calculator</h1>
+        <p>Analyse historical stock performance and calculate your investment returns with professional-grade tools.</p>
+        <a href="/calculator" class="btn">LAUNCH CALCULATOR</a>
+    </div>
+
+    <div class="features">
+        <div class="feature-card">
+            <h3>REAL MARKET DATA</h3>
+            <p>Powered by live stock data across global markets and exchanges.</p>
+        </div>
+        <div class="feature-card">
+            <h3>MONTHLY CONTRIBUTIONS</h3>
+            <p>Model the impact of regular monthly investments on your portfolio.</p>
+        </div>
+        <div class="feature-card">
+            <h3>RISK METRICS</h3>
+            <p>Volatility and max drawdown analysis for informed decision making.</p>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 XYZ Capital. For educational purposes only.
+    </footer>
+
+</body>
+</html>
