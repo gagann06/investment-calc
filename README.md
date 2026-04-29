@@ -171,4 +171,4 @@ pip install flask yfinance pandas matplotlib python-dotenv
 
 ## Disclaimer
 
-This tool is for **educational purposes only**. It does not constitute financial advice. Past performance is not indicative of future results. Always consult a qualified financial adviser before making investment decisions.
+This tool is for **educational purposes only**. It does not constitute financial advice. Past performance is not indicative of future results. Do not use to inform future investments without prior consultation with a financial professional.
