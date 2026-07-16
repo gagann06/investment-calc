@@ -1,4 +1,4 @@
-# Investment Return Calculator
+# Portfolio Performance Simulator
 
 A full-stack web application for analysing historical stock performance and calculating investment returns. Built with Python (Flask) on the backend and a finance-professional HTML/CSS frontend.
 
