@@ -50,7 +50,7 @@ investment-calculator/
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/your-username/investment-calculator.git
+git clone https://github.com/gagann06/investment-calculator.git
 cd investment-calculator
 ```
 
