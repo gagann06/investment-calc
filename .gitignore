@@ -3,18 +3,20 @@ __pycache__/
 *.py[cod]
 *$py.class
 venv/
+.venv/
 env/
 .env
+*.egg-info/
+
+# Tooling
+.pytest_cache/
+.coverage
+htmlcov/
 
 # IDE
 .vscode/
 .idea/
 *.swp
-
-# Data
-*.csv
-*.db
-data/cache/
 
 # Output
 *.log

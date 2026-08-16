@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Simulator</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg:#0A1628; --panel:#0D1F3C; --line:#1E3A5F;
+    --gold:#C9A84C; --gold-lt:#E0C068;
+    --text:#F0F0F0; --muted:#8FA0B8;
+    --up:#4CAF82; --down:#E05555; --bench:#6C8FC7;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:Georgia,'Times New Roman',serif;
+    background:var(--bg); color:var(--text); min-height:100vh; line-height:1.5;
+  }
+  nav {
+    background:var(--panel); border-bottom:2px solid var(--gold);
+    padding:16px 32px; display:flex; justify-content:space-between; align-items:baseline;
+  }
+  nav .logo { font-size:1.25rem; font-weight:bold; color:var(--gold); letter-spacing:2px; }
+  nav .tag { color:var(--muted); font-size:.8rem; letter-spacing:1px; }
+
+  .wrap { max-width:1240px; margin:0 auto; padding:28px 20px 60px; }
+  .layout { display:grid; grid-template-columns:340px 1fr; gap:28px; align-items:start; }
+  @media (max-width:960px){ .layout { grid-template-columns:1fr; } }
+
+  .panel {
+    background:var(--panel); border:1px solid var(--line);
+    border-top:3px solid var(--gold); padding:22px;
+  }
+  h2 { color:var(--gold); font-size:1rem; letter-spacing:2px; margin-bottom:18px; font-weight:bold; }
+  h3 { color:var(--gold); font-size:.85rem; letter-spacing:1.5px; margin-bottom:14px; }
+
+  label { display:block; color:var(--muted); font-size:.72rem; letter-spacing:1px; margin-bottom:6px; }
+  input, select {
+    width:100%; background:var(--bg); border:1px solid var(--line);
+    border-bottom:2px solid var(--gold); color:var(--text);
+    padding:9px 11px; font-size:.92rem; font-family:inherit; outline:none;
+  }
+  input:focus, select:focus { border-bottom-color:var(--gold-lt); }
+  .field { margin-bottom:15px; }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+
+  .holding { display:grid; grid-template-columns:1fr 74px 30px; gap:7px; margin-bottom:7px; align-items:center; }
+  .holding button {
+    background:none; border:1px solid var(--line); color:var(--muted);
+    cursor:pointer; height:34px; font-size:1rem; font-family:inherit;
+  }
+  .holding button:hover { border-color:var(--down); color:var(--down); }
+  .addbtn {
+    width:100%; background:none; border:1px dashed var(--line); color:var(--muted);
+    padding:8px; cursor:pointer; font-family:inherit; font-size:.8rem; letter-spacing:1px;
+  }
+  .addbtn:hover { border-color:var(--gold); color:var(--gold); }
+  .weightnote { color:var(--muted); font-size:.7rem; margin:8px 0 4px; }
+
+  .btn {
+    width:100%; background:var(--gold); color:var(--bg); padding:13px;
+    font-size:.9rem; font-weight:bold; letter-spacing:2px; border:none;
+    cursor:pointer; font-family:inherit; margin-top:6px;
+  }
+  .btn:hover { background:var(--gold-lt); }
+  .btn:disabled { background:var(--line); color:var(--muted); cursor:not-allowed; }
+
+  hr { border:none; border-top:1px solid var(--line); margin:18px 0; }
+
+  .error {
+    background:#3C1A1A; border-left:3px solid var(--down); color:#F2B0B0;
+    padding:12px 14px; font-size:.85rem; margin-bottom:18px;
+  }
+  .hint { color:var(--muted); font-size:.75rem; margin-top:6px; }
+
+  .empty { color:var(--muted); text-align:center; padding:70px 20px; font-size:.95rem; }
+  .empty strong { color:var(--gold); display:block; margin-bottom:8px; letter-spacing:1px; }
+
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:13px; margin-bottom:24px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-top:2px solid var(--gold); padding:15px; }
+  .card .k { color:var(--muted); font-size:.66rem; letter-spacing:1px; margin-bottom:7px; }
+  .card .v { font-size:1.2rem; font-weight:bold; color:var(--gold); }
+  .card .s { color:var(--muted); font-size:.68rem; margin-top:4px; }
+  .up { color:var(--up) !important; } .down { color:var(--down) !important; }
+
+  .chart { background:var(--panel); border:1px solid var(--line); padding:18px; margin-bottom:20px; }
+  .chartbox { position:relative; height:330px; }
+  .chartbox.short { height:200px; }
+
+  table { width:100%; border-collapse:collapse; font-size:.84rem; }
+  th, td { padding:8px 10px; text-align:right; border-bottom:1px solid var(--line); }
+  th { color:var(--muted); font-size:.68rem; letter-spacing:1px; font-weight:normal; }
+  th:first-child, td:first-child { text-align:left; }
+  td.ticker { color:var(--gold); }
+
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:860px){ .grid2 { grid-template-columns:1fr; } }
+
+  .heat { border-collapse:separate; border-spacing:3px; }
+  .heat td, .heat th { border:none; text-align:center; padding:9px 6px; font-size:.76rem; }
+  .heat td.cell { color:#08121F; font-weight:bold; }
+
+  .spin { display:none; text-align:center; padding:60px 20px; color:var(--gold); letter-spacing:2px; font-size:.85rem; }
+  .spin.on { display:block; }
+  .spin::before {
+    content:''; display:block; width:34px; height:34px; margin:0 auto 16px;
+    border:3px solid var(--line); border-top-color:var(--gold);
+    border-radius:50%; animation:spin .9s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  footer { text-align:center; color:#5A6A80; font-size:.76rem; padding:26px; border-top:1px solid var(--line); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">PORTFOLIO SIMULATOR</div>
+  <div class="tag">HISTORICAL BACKTEST &amp; RISK ANALYTICS</div>
+</nav>
+
+<div class="wrap">
+<div class="layout">
+
+  <!-- ---------------- controls ---------------- -->
+  <form class="panel" id="form">
+    <h2>PORTFOLIO</h2>
+
+    <div id="holdings"></div>
+    <button type="button" class="addbtn" id="add">+ ADD HOLDING</button>
+    <div class="weightnote" id="wnote"></div>
+
+    <hr>
+
+    <div class="row2">
+      <div class="field">
+        <label>START</label>
+        <input type="date" name="start_date" value="2019-01-01" required>
+      </div>
+      <div class="field">
+        <label>END</label>
+        <input type="date" name="end_date" value="2024-12-31" required>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>INITIAL INVESTMENT (£)</label>
+      <input type="number" name="initial_investment" value="10000" min="0.01" step="0.01" required>
+    </div>
+
+    <div class="field">
+      <label>MONTHLY CONTRIBUTION (£)</label>
+      <input type="number" name="monthly_contribution" value="250" min="0" step="0.01">
+    </div>
+
+    <hr>
+
+    <div class="field">
+      <label>REBALANCING</label>
+      <select name="rebalance">
+        <option value="none">None — let it drift</option>
+        <option value="monthly">Monthly</option>
+        <option value="quarterly" selected>Quarterly</option>
+        <option value="annual">Annual</option>
+      </select>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>BENCHMARK</label>
+        <input type="text" name="benchmark" value="^GSPC">
+      </div>
+      <div class="field">
+        <label>RISK-FREE (%)</label>
+        <input type="number" name="risk_free_rate" value="4" min="0" step="0.1">
+      </div>
+    </div>
+
+    <button type="submit" class="btn" id="go">RUN SIMULATION</button>
+    <div class="hint">Adjusted closes via Yahoo Finance. Educational use only.</div>
+  </form>
+
+  <!-- ---------------- results ---------------- -->
+  <div>
+    <div id="err"></div>
+    <div class="spin" id="spin">FETCHING PRICES &amp; SIMULATING</div>
+
+    <div class="panel empty" id="empty">
+      <strong>NOTHING SIMULATED YET</strong>
+      Choose your holdings and weights, then run the simulation.
+    </div>
+
+    <div id="out" style="display:none">
+      <div class="cards" id="cards"></div>
+
+      <div class="chart">
+        <h3>PORTFOLIO VALUE</h3>
+        <div class="chartbox"><canvas id="cGrowth"></canvas></div>
+      </div>
+
+      <div class="chart">
+        <h3>DRAWDOWN — PERCENT BELOW THE RUNNING PEAK</h3>
+        <div class="chartbox short"><canvas id="cDraw"></canvas></div>
+      </div>
+
+      <div class="grid2">
+        <div class="chart">
+          <h3>ALLOCATION — TARGET VS FINAL</h3>
+          <div class="chartbox short"><canvas id="cAlloc"></canvas></div>
+        </div>
+        <div class="chart">
+          <h3>CALENDAR YEAR RETURNS</h3>
+          <div class="chartbox short"><canvas id="cYears"></canvas></div>
+        </div>
+      </div>
+
+      <div class="chart" id="holdingsPanel">
+        <h3>HOLDINGS AT THE END</h3>
+        <table id="tAlloc"></table>
+      </div>
+
+      <div class="chart" id="corrPanel">
+        <h3>CORRELATION OF DAILY RETURNS</h3>
+        <table class="heat" id="tCorr"></table>
+        <div class="hint">Assets that move together add less diversification than their number suggests.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<footer>Simulated on historical prices. Past performance says nothing about the future.</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+const holdings = $('#holdings');
+const charts = {};
+
+const GOLD='#C9A84C', BENCH='#6C8FC7', MUTED='#8FA0B8', LINE='#1E3A5F',
+      UP='#4CAF82', DOWN='#E05555';
+
+// ---------------- holdings rows ----------------
+function addRow(ticker='', weight=''){
+  const row = document.createElement('div');
+  row.className = 'holding';
+  row.innerHTML =
+    '<input class="t" type="text" placeholder="TICKER" value="'+ticker+'">' +
+    '<input class="w" type="number" placeholder="%" min="0" step="any" value="'+weight+'">' +
+    '<button type="button" title="Remove">&times;</button>';
+  row.querySelector('button').onclick = () => { row.remove(); syncWeights(); };
+  row.querySelector('.w').oninput = syncWeights;
+  holdings.appendChild(row);
+  syncWeights();
+}
+
+function rows(){ return [...holdings.querySelectorAll('.holding')]; }
+
+function syncWeights(){
+  const ws = rows().map(r => parseFloat(r.querySelector('.w').value) || 0);
+  const total = ws.reduce((a,b)=>a+b, 0);
+  $('#wnote').textContent = total > 0
+    ? 'Weights total ' + total + ' — normalised to ' + ws.map(w=>(w/total*100).toFixed(1)+'%').join(' / ')
+    : 'Leave weights blank to split evenly.';
+}
+
+$('#add').onclick = () => addRow();
+addRow('AAPL', 40); addRow('MSFT', 35); addRow('JNJ', 25);
+
+// ---------------- formatting ----------------
+const money = v => (v<0?'-':'') + '£' + Math.abs(v).toLocaleString('en-GB',
+                    {minimumFractionDigits:0, maximumFractionDigits:0});
+const pct  = v => (v==null || isNaN(v)) ? '—' : v.toFixed(2) + '%';
+const num  = v => (v==null || isNaN(v)) ? '—' : v.toFixed(2);
+const sign = v => v == null ? '' : (v >= 0 ? 'up' : 'down');
+
+// ---------------- submit ----------------
+$('#form').onsubmit = async e => {
+  e.preventDefault();
+  const f = e.target;
+
+  const tickers = [], weights = [];
+  rows().forEach(r => {
+    const t = r.querySelector('.t').value.trim();
+    if (!t) return;
+    tickers.push(t);
+    weights.push(parseFloat(r.querySelector('.w').value) || 0);
+  });
+
+  const body = {
+    tickers,
+    weights: weights.every(w => w === 0) ? tickers.map(()=>1) : weights,
+    start_date: f.start_date.value,
+    end_date: f.end_date.value,
+    initial_investment: f.initial_investment.value,
+    monthly_contribution: f.monthly_contribution.value,
+    rebalance: f.rebalance.value,
+    benchmark: f.benchmark.value,
+    risk_free_rate: f.risk_free_rate.value
+  };
+
+  $('#err').innerHTML = '';
+  $('#empty').style.display = 'none';
+  $('#out').style.display = 'none';
+  $('#spin').classList.add('on');
+  $('#go').disabled = true;
+
+  try {
+    const res = await fetch('/api/simulate', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Simulation failed.');
+    render(data);
+    $('#out').style.display = 'block';
+  } catch (err) {
+    $('#err').innerHTML = '<div class="error">' + err.message + '</div>';
+    $('#empty').style.display = 'block';
+  } finally {
+    $('#spin').classList.remove('on');
+    $('#go').disabled = false;
+  }
+};
+
+// ---------------- rendering ----------------
+function render(d){
+  const s = d.summary, b = d.benchmark;
+
+  const cards = [
+    ['FINAL VALUE',   money(s.final_value), 'paid in ' + money(s.total_invested)],
+    ['PROFIT',        money(s.profit), null, sign(s.profit)],
+    ['TIME-WEIGHTED', pct(s.twr_pct), 'the investment&rsquo;s return', sign(s.twr_pct)],
+    ['MONEY-WEIGHTED',pct(s.money_weighted_pct), 'your return, per year', sign(s.money_weighted_pct)],
+    ['ANNUALISED',    pct(s.cagr_pct), num(s.years) + ' years', sign(s.cagr_pct)],
+    ['VOLATILITY',    pct(s.volatility_pct), 'annualised'],
+    ['SHARPE',        num(s.sharpe), 'per unit of risk', sign(s.sharpe)],
+    ['SORTINO',       num(s.sortino), 'downside only', sign(s.sortino)],
+    ['MAX DRAWDOWN',  pct(s.max_drawdown_pct), s.drawdown_trough || '', 'down'],
+    ['CALMAR',        num(s.calmar), 'return vs worst fall']
+  ];
+  if (b) {
+    cards.push(['BETA vs ' + b.ticker, num(s.beta), 'market sensitivity']);
+    cards.push(['ALPHA', pct(s.alpha_pct), 'excess of the benchmark', sign(s.alpha_pct)]);
+  }
+
+  $('#cards').innerHTML = cards.map(([k,v,sub,cls]) =>
+    '<div class="card"><div class="k">'+k+'</div>' +
+    '<div class="v '+(cls||'')+'">'+v+'</div>' +
+    (sub ? '<div class="s">'+sub+'</div>' : '') + '</div>'
+  ).join('');
+
+  drawGrowth(d);
+  drawDrawdown(d);
+  drawAllocation(d);
+  drawYears(d);
+  drawTable(d);
+  drawCorrelation(d);
+}
+
+function base(extra){
+  return Object.assign({
+    responsive:true, maintainAspectRatio:false,
+    interaction:{ mode:'index', intersect:false },
+    plugins:{
+      legend:{ labels:{ color:MUTED, font:{family:'Georgia', size:11}, boxWidth:12 } },
+      tooltip:{ backgroundColor:'#0A1628', borderColor:LINE, borderWidth:1,
+                titleColor:GOLD, bodyColor:'#F0F0F0', titleFont:{family:'Georgia'},
+                bodyFont:{family:'Georgia'} }
+    },
+    scales:{
+      x:{ ticks:{ color:MUTED, maxTicksLimit:9, font:{size:10} }, grid:{ color:LINE } },
+      y:{ ticks:{ color:MUTED, font:{size:10} }, grid:{ color:LINE } }
+    }
+  }, extra || {});
+}
+
+function swap(id, config){
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id), config);
+}
+
+function drawGrowth(d){
+  const sets = [
+    { label:'Portfolio', data:d.series.portfolio, borderColor:GOLD,
+      borderWidth:2, pointRadius:0, tension:.1 },
+    { label:'Paid in', data:d.series.invested, borderColor:MUTED,
+      borderWidth:1, borderDash:[5,4], pointRadius:0 }
+  ];
+  if (d.benchmark) sets.push({
+    label:d.benchmark.ticker + ' (same cashflows)', data:d.benchmark.values,
+    borderColor:BENCH, borderWidth:1.5, pointRadius:0, tension:.1
+  });
+
+  swap('cGrowth', { type:'line', data:{ labels:d.series.dates, datasets:sets },
+    options: base({ plugins:{ legend:{ labels:{ color:MUTED, boxWidth:12,
+      font:{family:'Georgia', size:11} } },
+      tooltip:{ callbacks:{ label:c => c.dataset.label + ': ' + money(c.parsed.y) } } },
+      scales:{ x:{ ticks:{color:MUTED, maxTicksLimit:9, font:{size:10}}, grid:{color:LINE} },
+               y:{ ticks:{ color:MUTED, font:{size:10},
+                    callback:v => '£' + (v/1000).toFixed(0) + 'k' }, grid:{color:LINE} } } })
+  });
+}
+
+function drawDrawdown(d){
+  if (!d.series.drawdown) { $('#cDraw').closest('.chart').style.display='none'; return; }
+  swap('cDraw', { type:'line',
+    data:{ labels:d.series.dates, datasets:[{ label:'Drawdown', data:d.series.drawdown,
+      borderColor:DOWN, backgroundColor:'rgba(224,85,85,.18)', fill:true,
+      borderWidth:1.5, pointRadius:0 }] },
+    options: base({ plugins:{ legend:{display:false},
+      tooltip:{ callbacks:{ label:c => pct(c.parsed.y) } } },
+      scales:{ x:{ ticks:{color:MUTED, maxTicksLimit:9, font:{size:10}}, grid:{color:LINE} },
+               y:{ ticks:{ color:MUTED, font:{size:10}, callback:v => v+'%' }, grid:{color:LINE} } } })
+  });
+}
+
+function drawAllocation(d){
+  swap('cAlloc', { type:'bar',
+    data:{ labels:d.allocation.map(a=>a.ticker), datasets:[
+      { label:'Target', data:d.allocation.map(a=>a.target*100), backgroundColor:LINE },
+      { label:'Final',  data:d.allocation.map(a=>a.final*100),  backgroundColor:GOLD }
+    ]},
+    options: base({ scales:{
+      x:{ ticks:{color:MUTED, font:{size:10}}, grid:{display:false} },
+      y:{ ticks:{ color:MUTED, font:{size:10}, callback:v=>v+'%' }, grid:{color:LINE} } } })
+  });
+}
+
+function drawYears(d){
+  const years = d.annual_returns || [];
+  if (!years.length) { $('#cYears').closest('.chart').style.display='none'; return; }
+  const sets = [{ label:'Portfolio', data:years.map(y=>y.portfolio),
+                  backgroundColor:years.map(y=> y.portfolio>=0 ? UP : DOWN) }];
+  if (d.benchmark) sets.push({ label:d.benchmark.ticker,
+                  data:years.map(y=>y.benchmark), backgroundColor:BENCH });
+
+  swap('cYears', { type:'bar', data:{ labels:years.map(y=>y.year), datasets:sets },
+    options: base({ scales:{
+      x:{ ticks:{color:MUTED, font:{size:10}}, grid:{display:false} },
+      y:{ ticks:{ color:MUTED, font:{size:10}, callback:v=>v+'%' }, grid:{color:LINE} } } })
+  });
+}
+
+function drawTable(d){
+  $('#tAlloc').innerHTML =
+    '<tr><th>Ticker</th><th>Target</th><th>Final</th><th>Drift</th><th>Value</th></tr>' +
+    d.allocation.map(a => {
+      const drift = (a.final - a.target) * 100;
+      return '<tr><td class="ticker">'+a.ticker+'</td>' +
+        '<td>'+(a.target*100).toFixed(1)+'%</td>' +
+        '<td>'+(a.final*100).toFixed(1)+'%</td>' +
+        '<td class="'+sign(drift)+'">'+(drift>=0?'+':'')+drift.toFixed(1)+'%</td>' +
+        '<td>'+money(a.value)+'</td></tr>';
+    }).join('');
+}
+
+function drawCorrelation(d){
+  const c = d.correlation;
+  if (!c || c.tickers.length < 2) { $('#corrPanel').style.display='none'; return; }
+  $('#corrPanel').style.display = 'block';
+
+  const shade = v => {
+    // -1 blue, 0 dark, +1 gold
+    const t = (v + 1) / 2;
+    const r = Math.round(60 + t*(201-60)), g = Math.round(110 + t*(168-110)), b = Math.round(180 + t*(76-180));
+    return 'rgb('+r+','+g+','+b+')';
+  };
+
+  let html = '<tr><th></th>' + c.tickers.map(t=>'<th>'+t+'</th>').join('') + '</tr>';
+  c.matrix.forEach((row, i) => {
+    html += '<tr><th style="text-align:left">'+c.tickers[i]+'</th>' +
+      row.map(v => '<td class="cell" style="background:'+shade(v)+'">'+v.toFixed(2)+'</td>').join('') +
+      '</tr>';
+  });
+  $('#tCorr').innerHTML = html;
+}
+</script>
+</body>
+</html>
