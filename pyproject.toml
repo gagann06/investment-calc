@@ -8,6 +8,9 @@ version = "0.2.0"
 description = "Historical multi-asset portfolio simulator with contribution scheduling, rebalancing and risk analytics"
 requires-python = ">=3.10"
 
+[project.scripts]
+portfolio-simulator = "portfolio.api:main"
+
 [tool.setuptools.packages.find]
 include = ["portfolio*"]
 

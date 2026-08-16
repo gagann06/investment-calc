@@ -21,14 +21,32 @@ benchmarked against identical cashflows into an index
 
 ## Quick start
 
-Requires Python 3.10 or newer.
+Requires Python 3.10 or newer, and `git`. On macOS use `python3` and `pip3` if
+`python` points at the system Python 2.
+
+Clone the repository and move into it:
 
 ```bash
 git clone https://github.com/gagann06/investment-calc.git
 cd investment-calc
-python -m venv venv
-venv\Scripts\activate
+```
+
+**macOS / Linux**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
+pip install -e .
+```
+
+**Windows**
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+pip install -e .
 ```
 
 Run the tests:
@@ -40,8 +58,12 @@ pytest
 Start the app at <http://localhost:5000>:
 
 ```bash
-python -m flask --app portfolio.api:create_app run
+portfolio-simulator
 ```
+
+`pip install -e .` puts that command on your path. `--host`, `--port` and
+`--no-debug` are available, and `python -m portfolio.api` does the same thing if
+you would rather not install the package.
 
 The whole suite runs offline in about two seconds. Only `portfolio/data.py`
 touches the network, and the tests replace it.
@@ -90,6 +112,40 @@ Note the gap between the annualised 26.93% and the money-weighted 24.61%. The
 investment compounded at 26.93%; the investor earned 24.61%, because each
 monthly contribution had less time to work than the money before it. Only one of
 those numbers is what actually happened to this person.
+
+---
+
+## API
+
+| method | path | |
+|---|---|---|
+| `GET` | `/` | the page |
+| `POST` | `/api/simulate` | run a simulation, returns the full bundle as JSON |
+| `GET` | `/health` | liveness |
+
+`/api/simulate` takes a JSON body:
+
+```json
+{
+  "tickers": ["AAPL", "MSFT", "JNJ"],
+  "weights": [40, 35, 25],
+  "start_date": "2019-01-01",
+  "end_date": "2024-12-31",
+  "initial_investment": 10000,
+  "monthly_contribution": 250,
+  "rebalance": "quarterly",
+  "benchmark": "^GSPC",
+  "risk_free_rate": 4
+}
+```
+
+Weights may be given in any scale — percentages, fractions or raw ratios — and
+are normalised. `rebalance` is one of `none`, `monthly`, `quarterly`, `annual`.
+Omit `weights` entirely to split evenly.
+
+The response carries `summary`, `benchmark`, `allocation`, `series`,
+`correlation` and `annual_returns`. Anything the request layer rejects comes
+back as a `400` with a readable `error`, rather than a 500 from inside pandas.
 
 ---
 
@@ -259,6 +315,8 @@ tests/
 - **Survivorship bias** is inherent to picking tickers that exist today.
 - Yahoo Finance is not an authoritative source, and it has no SLA.
 
+---
+
 ## Coming soon
 
 - Transaction costs and a spread assumption, so rebalancing has a price
@@ -266,3 +324,10 @@ tests/
 - Monte Carlo: bootstrap the return series to stress a portfolio across paths
   it did not happen to take
 - Efficient-frontier weights rather than user-supplied ones
+- A CLI, for running a portfolio without the browser
+
+---
+
+## License
+
+MIT. See [LICENSE](LICENSE).
